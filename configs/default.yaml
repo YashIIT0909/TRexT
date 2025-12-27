@@ -1,0 +1,12 @@
+theme: default
+defaultTimeout: 30
+sslVerify: true
+proxy: ""
+history:
+  maxItems: 100
+  enabled: true
+keybindings:
+  sendRequest: Ctrl+Enter
+  newRequest: Ctrl+N
+  saveRequest: Ctrl+S
+  focusURL: Ctrl+U
