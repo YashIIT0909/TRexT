@@ -83,12 +83,34 @@ func (a *App) buildUI() {
 	// Set initial state
 	a.responseView.Clear()
 
-	// Create main layout: [Collections 1] | [Request 2] | [Response 2]
+	// Create layout:
+	// ┌─────────────┬───────────────────────────────────────┐
+	// │             │ Request (URL/Method) - spans full     │
+	// │ Collections ├─────────────────────┬─────────────────┤
+	// │             │ Headers             │                 │
+	// │             ├─────────────────────┤    Response     │
+	// │             │ Body                │                 │
+	// │             ├─────────────────────┤                 │
+	// │             │ [Send Button]       │                 │
+	// └─────────────┴─────────────────────┴─────────────────┘
+
+	// Middle section: Headers/Body | Response (side by side)
+	middleSection := tview.NewFlex().
+		SetDirection(tview.FlexColumn).
+		AddItem(a.requestPanel.BodyContainer, 0, 1, false).
+		AddItem(a.responseView.Container, 0, 1, false)
+
+	// Right panel: Request URL on top, middle section below
+	rightPanel := tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(a.requestPanel.TopRow, 3, 0, true).
+		AddItem(middleSection, 0, 1, false)
+
+	// Main layout: Collections | Right panel
 	a.mainLayout = tview.NewFlex().
 		SetDirection(tview.FlexColumn).
 		AddItem(a.collections.Container, 0, 1, true).
-		AddItem(a.requestPanel.Container, 0, 2, false).
-		AddItem(a.responseView.Container, 0, 2, false)
+		AddItem(rightPanel, 0, 4, false)
 
 	// Root layout with help bar at bottom
 	a.rootFlex = tview.NewFlex().

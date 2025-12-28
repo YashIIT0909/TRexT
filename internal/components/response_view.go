@@ -37,17 +37,11 @@ func (rv *ResponseView) build() {
 		SetTextAlign(tview.AlignLeft)
 	rv.StatusBar.SetBorder(false)
 
-	// Tabs
+	// Tabs (will be placed at the bottom)
 	rv.tabs = tview.NewTextView().
 		SetDynamicColors(true).
 		SetText("[\"body\"][darkcyan]Body[white][\"\"] | [\"headers\"]Headers[\"\"]")
 	rv.tabs.SetBorder(false)
-
-	// Header row
-	headerRow := tview.NewFlex().
-		SetDirection(tview.FlexColumn).
-		AddItem(rv.StatusBar, 0, 1, false).
-		AddItem(rv.tabs, 30, 0, false)
 
 	// Headers view
 	rv.HeadersView = tview.NewTextView().
@@ -69,11 +63,17 @@ func (rv *ResponseView) build() {
 		SetTitle(" Response ").
 		SetTitleAlign(tview.AlignLeft)
 
-	// Main container
+	// Footer row with tabs
+	footerRow := tview.NewFlex().
+		SetDirection(tview.FlexColumn).
+		AddItem(rv.StatusBar, 0, 1, false).
+		AddItem(rv.tabs, 30, 0, false)
+
+	// Main container - content on top, tabs at bottom
 	rv.Container = tview.NewFlex().
 		SetDirection(tview.FlexRow).
-		AddItem(headerRow, 1, 0, false).
-		AddItem(contentBox, 0, 1, false)
+		AddItem(contentBox, 0, 1, false).
+		AddItem(footerRow, 1, 0, false)
 }
 
 // SetResponse displays the response

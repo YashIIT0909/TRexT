@@ -11,12 +11,14 @@ import (
 
 // RequestPanel represents the request builder panel
 type RequestPanel struct {
-	Container    *tview.Flex
-	MethodSelect *tview.DropDown
-	URLInput     *tview.InputField
-	HeadersInput *tview.TextArea
-	BodyInput    *tview.TextArea
-	SendButton   *tview.Button
+	Container      *tview.Flex
+	TopRow         *tview.Flex   // URL/Method row (exposed for layout)
+	BodyContainer  *tview.Flex   // Headers + Body + Button (exposed for layout)
+	MethodSelect   *tview.DropDown
+	URLInput       *tview.InputField
+	HeadersInput   *tview.TextArea
+	BodyInput      *tview.TextArea
+	SendButton     *tview.Button
 
 	onSend func()
 }
@@ -44,12 +46,12 @@ func (rp *RequestPanel) build() {
 		SetFieldWidth(0)
 	rp.URLInput.SetBorder(false)
 
-	// Top row: method + URL
-	topRow := tview.NewFlex().
+	// Top row: method + URL (exposed for custom layout)
+	rp.TopRow = tview.NewFlex().
 		SetDirection(tview.FlexColumn).
 		AddItem(rp.MethodSelect, 20, 0, false).
 		AddItem(rp.URLInput, 0, 1, true)
-	topRow.SetBorder(true).
+	rp.TopRow.SetBorder(true).
 		SetTitle(" Request ").
 		SetTitleAlign(tview.AlignLeft)
 
@@ -82,13 +84,18 @@ func (rp *RequestPanel) build() {
 		AddItem(rp.SendButton, 20, 0, false).
 		AddItem(nil, 0, 1, false)
 
-	// Main container
-	rp.Container = tview.NewFlex().
+	// Body container: Headers + Body + Button (exposed for custom layout)
+	rp.BodyContainer = tview.NewFlex().
 		SetDirection(tview.FlexRow).
-		AddItem(topRow, 3, 0, true).
 		AddItem(rp.HeadersInput, 0, 1, false).
 		AddItem(rp.BodyInput, 0, 2, false).
 		AddItem(buttonContainer, 1, 0, false)
+
+	// Main container (default full panel - can be ignored if using custom layout)
+	rp.Container = tview.NewFlex().
+		SetDirection(tview.FlexRow).
+		AddItem(rp.TopRow, 3, 0, true).
+		AddItem(rp.BodyContainer, 0, 1, false)
 }
 
 // SetOnSend sets the callback for when send is triggered
