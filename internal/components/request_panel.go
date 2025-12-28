@@ -11,14 +11,14 @@ import (
 
 // RequestPanel represents the request builder panel
 type RequestPanel struct {
-	Container      *tview.Flex
-	TopRow         *tview.Flex   // URL/Method row (exposed for layout)
-	BodyContainer  *tview.Flex   // Headers + Body + Button (exposed for layout)
-	MethodSelect   *tview.DropDown
-	URLInput       *tview.InputField
-	HeadersInput   *tview.TextArea
-	BodyInput      *tview.TextArea
-	SendButton     *tview.Button
+	Container     *tview.Flex
+	TopRow        *tview.Flex // URL/Method row (exposed for layout)
+	BodyContainer *tview.Flex // Headers + Body + Button (exposed for layout)
+	MethodSelect  *tview.DropDown
+	URLInput      *tview.InputField
+	HeadersInput  *tview.TextArea
+	BodyInput     *tview.TextArea
+	SendButton    *tview.Button
 
 	onSend func()
 }
@@ -31,12 +31,16 @@ func NewRequestPanel() *RequestPanel {
 }
 
 func (rp *RequestPanel) build() {
-	// Method dropdown
+	// Method dropdown - includes GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS
 	rp.MethodSelect = tview.NewDropDown().
 		SetLabel("Method: ").
 		SetOptions(http.SupportedMethods(), nil).
 		SetCurrentOption(0).
-		SetFieldWidth(10)
+		SetFieldWidth(12).
+		SetListStyles(
+			tcell.StyleDefault.Background(tcell.ColorDefault).Foreground(tcell.ColorWhite),
+			tcell.StyleDefault.Background(tcell.ColorDarkCyan).Foreground(tcell.ColorWhite),
+		)
 	rp.MethodSelect.SetBorder(false)
 
 	// URL input

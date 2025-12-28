@@ -126,6 +126,7 @@ func (a *App) buildUI() {
 	// Set focusable items for navigation
 	a.focusables = []tview.Primitive{
 		a.collections.List,
+		a.requestPanel.MethodSelect,
 		a.requestPanel.URLInput,
 		a.requestPanel.HeadersInput,
 		a.requestPanel.BodyInput,
