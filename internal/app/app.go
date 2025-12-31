@@ -143,6 +143,12 @@ func (a *App) setupHandlers() {
 	// Global key bindings
 	a.tviewApp.SetInputCapture(a.handleGlobalKeys)
 
+	// Enable mouse support
+	a.tviewApp.EnableMouse(true)
+
+	// Setup mouse click handlers for focusable components
+	a.setupMouseHandlers()
+
 	// Request panel handlers
 	a.requestPanel.SetOnSend(a.executeRequest)
 
@@ -248,6 +254,36 @@ func (a *App) focusPrev() {
 		a.focusIndex = len(a.focusables) - 1
 	}
 	a.tviewApp.SetFocus(a.focusables[a.focusIndex])
+}
+
+// setupMouseHandlers adds mouse click handlers to focusable components
+func (a *App) setupMouseHandlers() {
+	// Use global mouse capture to handle clicks on focusable components
+	a.tviewApp.SetMouseCapture(func(event *tcell.EventMouse, action tview.MouseAction) (*tcell.EventMouse, tview.MouseAction) {
+		if action != tview.MouseLeftClick && action != tview.MouseLeftDown {
+			return event, action
+		}
+
+		// Check if we're in a modal
+		if name, _ := a.pages.GetFrontPage(); name != "main" {
+			return event, action
+		}
+
+		x, y := event.Position()
+
+		// Check each focusable component to see if the click is within its bounds
+		for i, primitive := range a.focusables {
+			// Get the primitive's position and size
+			px, py, pw, ph := primitive.GetRect()
+			if x >= px && x < px+pw && y >= py && y < py+ph {
+				a.focusIndex = i
+				a.tviewApp.SetFocus(primitive)
+				return event, action
+			}
+		}
+
+		return event, action
+	})
 }
 
 // executeRequest sends the HTTP request
