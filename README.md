@@ -10,18 +10,30 @@ A Terminal UI based REST API Client built with Go and [tview](https://github.com
 - 🚀 **HTTP Methods**: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS
 - 📝 **Request Builder**: URL input, headers editor, body editor
 - 📊 **Response Viewer**: Status, headers, formatted JSON body, timing
-- 💾 **Persistence**: Save requests to SQLite database
+- 💾 **Persistence**: Save requests to PostgreSQL database
 - 📁 **Collections**: Organize requests in collections
 - ⌨️ **Keyboard-driven**: Full keyboard navigation
 - 🎨 **Theming**: Customizable color themes
+- 🔄 **Type-safe SQL**: Uses [sqlc](https://sqlc.dev/) for generated database code
+- 📦 **Migrations**: Database migrations with [goose](https://github.com/pressly/goose)
 
 ## Installation
+
+### Prerequisites
+
+- Go 1.21+
+- PostgreSQL database
 
 ### From Source
 
 ```bash
 git clone https://github.com/YashIIT0909/TRexT.git
 cd TRexT
+
+# Set up PostgreSQL database
+cp .env.example .env
+# Edit .env with your PostgreSQL connection string
+
 go build -o trext ./cmd/trext
 ./trext
 ```
@@ -94,12 +106,29 @@ TRexT/
 │   │   ├── request.go          # Request model
 │   │   └── response.go         # Response model
 │   ├── storage/
-│   │   ├── db.go               # SQLite database
+│   │   ├── database.go         # PostgreSQL database connection
 │   │   ├── config.go           # YAML configuration
-│   │   └── models.go           # Data models
+│   │   ├── models.go           # Data models
+│   │   └── db/                 # sqlc generated code
+│   │       ├── db.go
+│   │       ├── models.go
+│   │       ├── collections.sql.go
+│   │       ├── history.sql.go
+│   │       └── requests.sql.go
 │   └── utils/
 │       └── json.go             # JSON utilities
+├── sql/
+│   ├── queries/                # SQL queries for sqlc
+│   │   ├── collections.sql
+│   │   ├── history.sql
+│   │   └── requests.sql
+│   └── schemas/                # Goose migrations
+│       ├── 001_initial_schema.sql
+│       └── embed.go
 ├── configs/default.yaml        # Default configuration
+├── .env.example                # Example environment file
+├── sqlc.yaml                   # sqlc configuration
+├── Makefile                    # Build and database commands
 ├── go.mod
 └── README.md
 ```
@@ -112,14 +141,47 @@ Config is stored at `~/.config/trext/config.yaml`:
 theme: default          # or "dracula"
 defaultTimeout: 30      # seconds
 sslVerify: true
+proxy: ""
 history:
   maxItems: 100
   enabled: true
+keybindings:
+  sendRequest: Ctrl+Enter
+  newRequest: Ctrl+N
+  saveRequest: Ctrl+S
+  focusURL: Ctrl+U
 ```
 
-## Data Storage
+## Database Setup
 
-Requests and history are stored in SQLite at `~/.config/trext/data.db`.
+TRexT uses PostgreSQL for data storage. Set up your database connection using environment variables:
+
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit `.env` with your PostgreSQL connection string:
+   ```
+   DATABASE_URL=postgres://user:password@localhost:5432/trext?sslmode=disable
+   ```
+
+3. Migrations run automatically on startup using embedded goose migrations.
+
+## Development
+
+### Makefile Commands
+
+| Command | Description |
+|---------|-------------|
+| `make build` | Build the application |
+| `make run` | Build and run the application |
+| `make sqlc` | Generate Go code from SQL queries |
+| `make goose-up` | Run all pending migrations |
+| `make goose-down` | Rollback the last migration |
+| `make goose-status` | Show migration status |
+| `make goose-create` | Create a new migration file |
+| `make generate` | Generate all code (sqlc) |
 
 ## Roadmap
 
